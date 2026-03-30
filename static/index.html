@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Connexion administrateur et utilisateur a 24h Mada.">
+  <meta property="og:title" content="Connexion - 24h Mada">
+  <meta property="og:description" content="Connectez-vous pour acceder aux articles et outils admin.">
+  <meta property="og:image" content="/favicon.ico">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b57d0">
+  <title>Connexion - 24h Mada</title>
+
+  <style>
+    :root {
+      --ink: #1b1b1b;
+      --muted: #5a5a5a;
+      --paper: #ffffff;
+      --line: #e5e7eb;
+      --brand: #941313;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.95), transparent 45%),
+        linear-gradient(160deg, #f7f8fb 0%, #eef1f6 55%, #f5f7fb 100%);
+      min-height: 100vh;
+    }
+
+    .main-content {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--paper);
+      border: 1px solid #d9dce3;
+      border-radius: 20px;
+      box-shadow:
+        0 22px 44px rgba(15, 23, 42, 0.12),
+        0 6px 16px rgba(15, 23, 42, 0.08);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(30px, 5vw, 42px);
+      line-height: 1.1;
+      margin-bottom: 12px;
+      position: relative;
+      padding-bottom: 12px;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 84px;
+      height: 3px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #c19a4a, var(--brand));
+    }
+
+    .sub {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .field { margin-bottom: 12px; }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #374151;
+      font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #b7c2d3;
+      box-shadow: 0 0 0 3px rgba(148, 19, 19, 0.08);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 8px;
+      border: 1px solid var(--brand);
+      background: var(--brand);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(1.05); }
+
+    #result {
+      margin-top: 12px;
+      padding: 10px;
+      background: #fafbfc;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: pre-wrap;
+      min-height: 42px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-content">
+    <div class="login-card">
+      <h1>Connexion</h1>
+      <p class="sub">Accede a 24h Mada et a l'interface d'administration</p>
+
+      <form id="login">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" required />
+        </div>
+        <div class="field">
+          <label for="motDePasse">Mot de passe</label>
+          <input id="motDePasse" type="password" required />
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
+
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const motDePasse = document.getElementById('motDePasse').value;
+      try {
+        const basicAuth = 'Basic ' + btoa(email + ':' + motDePasse);
+        const resp = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, motDePasse })
+        });
+        if (!resp.ok) {
+          const txt = await resp.text();
+          document.getElementById('result').textContent = 'Erreur: ' + txt;
+          return;
+        }
+        localStorage.setItem('adminBasicAuth', basicAuth);
+        document.getElementById('result').textContent = 'Connexion reussie. Redirection...';
+        window.location.href = '/articles';
+      } catch (err) {
+        document.getElementById('result').textContent = 'Erreur reseau: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

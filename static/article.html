@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Detail d'un article 24h Mada.">
+  <meta property="og:title" content="Detail article - 24h Mada">
+  <meta property="og:description" content="Detail d'un article 24h Mada.">
+  <meta property="og:image" content="">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0b57d0">
+  <title>Detail article</title>
+  <style>
+    :root {
+      --ink: #1b1b1b;
+      --muted: #5a5a5a;
+      --paper: #ffffff;
+      --line: #e5e7eb;
+      --brand: #941313;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.95), transparent 45%),
+        linear-gradient(160deg, #f7f8fb 0%, #eef1f6 55%, #f5f7fb 100%);
+      min-height: 100vh;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .main-content {
+      padding-top: 100px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 48px;
+    }
+
+    /* Conteneur principal centré */
+    .wrap {
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      background: var(--paper);
+      border-radius: 20px;
+      border: 1px solid #d9dce3;
+      box-shadow:
+        0 22px 44px rgba(15, 23, 42, 0.12),
+        0 6px 16px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    /* En-tête avec bouton retour */
+    .article-header {
+      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      position: relative;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #111827;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .back-link:hover {
+      background: #f8fafc;
+      transform: translateX(-4px);
+    }
+
+    .back-link:before {
+      content: "←";
+      font-size: 18px;
+    }
+
+    /* Contenu principal */
+    .article-content {
+      padding: 40px 48px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 48px);
+      color: var(--ink);
+      margin-bottom: 20px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    /* Chapeau stylisé */
+    .chapeau {
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e5e7eb;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Image */
+    .article-image {
+      margin: 24px 0 32px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .article-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .article-image img:hover {
+      transform: scale(1.02);
+    }
+
+    /* Métadonnées */
+    .metadata-section {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 24px;
+      margin: 32px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6c757d;
+      margin-bottom: 6px;
+    }
+
+    .meta-value {
+      font-size: 1rem;
+      color: #1a1a1a;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    /* Contenu de l'article */
+    .content-section {
+      margin: 32px 0;
+    }
+
+    .content-section h3 {
+      font-size: 1.8rem;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 12px;
+    }
+
+    .content-section h3:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #c19a4a, var(--brand));
+      border-radius: 2px;
+    }
+
+    .article-body {
+      background: #f8f9fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: #2c3e50;
+      overflow-x: auto;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .main-content {
+        padding-top: 84px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .article-header {
+        padding: 20px 24px;
+      }
+
+      .article-content {
+        padding: 24px 28px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .chapeau {
+        font-size: 1rem;
+      }
+
+      .metadata-section {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 20px;
+      }
+
+      .content-section h3 {
+        font-size: 1.5rem;
+      }
+
+      .article-body {
+        padding: 16px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding-top: 84px;
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .wrap {
+        border-radius: 14px;
+      }
+
+      .article-content {
+        padding: 20px 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .back-link {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .wrap {
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 60px 40px;
+      color: #6c757d;
+    }
+
+    .loading:after {
+      content: "...";
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: "."; }
+      40% { content: ".."; }
+      60%, 100% { content: "..."; }
+    }
+
+    /* Error state */
+    .error-message {
+      text-align: center;
+      padding: 60px 40px;
+      background: #fef2f2;
+      border-radius: 12px;
+      color: #dc2626;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Contenu principal avec padding-top pour éviter d'être caché sous la navbar -->
+  <div class="main-content">
+    <div class="wrap">
+      <div class="article-header">
+        <a href="/articles" class="back-link">Retour à la liste</a>
+      </div>
+      <div class="article-content">
+        <h1 id="titre">Chargement...</h1>
+        <p id="chapeau" class="chapeau"></p>
+        <div id="imageContainer" class="article-image" style="display:none">
+          <img id="image" alt="Illustration de l'article" />
+        </div>
+        <div class="metadata-section">
+          <div class="meta-item">
+            <span class="meta-label">Slug</span>
+            <span id="slug" class="meta-value">—</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Catégorie ID</span>
+            <span id="categoryId" class="meta-value">—</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Auteur ID</span>
+            <span id="authorId" class="meta-value">—</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Créé le</span>
+            <span id="createdAt" class="meta-value">—</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Mis à jour le</span>
+            <span id="updatedAt" class="meta-value">—</span>
+          </div>
+        </div>
+        <div class="content-section">
+          <h3>Contenu</h3>
+          <div id="contenu" class="article-body"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getSlugFromPath() {
+      const path = window.location.pathname;
+      const prefix = '/articles/';
+      if (!path.startsWith(prefix) || path.length <= prefix.length) {
+        return null;
+      }
+      return decodeURIComponent(path.substring(prefix.length));
+    }
+
+    function setMeta(selector, content) {
+      const el = document.querySelector(selector);
+      if (el) {
+        el.setAttribute('content', content || '');
+      }
+    }
+
+    function updateSeo(a) {
+      const titre = a.titre || 'Sans titre';
+      const chapeau = a.chapeau || 'Article 24h Mada';
+      document.title = titre + ' - 24h Mada';
+      setMeta('meta[name="description"]', chapeau);
+      setMeta('meta[property="og:title"]', titre);
+      setMeta('meta[property="og:description"]', chapeau);
+      setMeta('meta[property="og:url"]', window.location.href);
+      if (a.imageUrl) {
+        setMeta('meta[property="og:image"]', a.imageUrl);
+      }
+    }
+
+    async function loadArticle() {
+      const slug = getSlugFromPath();
+      if (!slug) {
+        document.getElementById('titre').textContent = 'Article introuvable (slug manquant)';
+        document.getElementById('titre').className = 'error-message';
+        return;
+      }
+
+      try {
+        const resp = await fetch('/api/articles/' + encodeURIComponent(slug));
+        if (!resp.ok) {
+          const txt = await resp.text();
+          document.getElementById('titre').textContent = 'Erreur: ' + txt;
+          document.getElementById('titre').className = 'error-message';
+          return;
+        }
+
+        const a = await resp.json();
+        updateSeo(a);
+        
+        // Mise à jour des éléments avec animation
+        document.getElementById('titre').textContent = a.titre || 'Sans titre';
+        document.getElementById('chapeau').textContent = a.chapeau || '';
+        document.getElementById('slug').textContent = a.slug || '—';
+        document.getElementById('categoryId').textContent = a.categoryId ?? '—';
+        document.getElementById('authorId').textContent = a.authorId ?? '—';
+        
+        // Formatage des dates si présentes
+        if (a.createdAt) {
+          const date = new Date(a.createdAt);
+          document.getElementById('createdAt').textContent = date.toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } else {
+          document.getElementById('createdAt').textContent = '—';
+        }
+        
+        if (a.updatedAt) {
+          const date = new Date(a.updatedAt);
+          document.getElementById('updatedAt').textContent = date.toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } else {
+          document.getElementById('updatedAt').textContent = '—';
+        }
+        
+        document.getElementById('contenu').textContent = a.contenu || 'Aucun contenu disponible.';
+
+        const imageContainer = document.getElementById('imageContainer');
+        const img = document.getElementById('image');
+        if (a.imageUrl) {
+          img.src = a.imageUrl;
+          img.alt = a.titre || 'Sans titre';
+          imageContainer.style.display = 'block';
+        } else {
+          imageContainer.style.display = 'none';
+        }
+      } catch (err) {
+        document.getElementById('titre').textContent = 'Erreur réseau: ' + err.message;
+        document.getElementById('titre').className = 'error-message';
+      }
+    }
+
+    loadArticle();
+  </script>
+  <script src="/load-navbar.js"></script>
+</body>
+</html>
