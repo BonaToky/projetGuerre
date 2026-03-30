@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Connexion a 24h Mada pour acceder aux articles.">
+  <meta property="og:title" content="Connexion - 24h Mada">
+  <meta property="og:description" content="Connexion a 24h Mada pour acceder aux articles.">
+  <meta property="og:image" content="/favicon.ico">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="/login">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#000000">
+  <title>Login</title>
+</head>
+<body>
+  <h1>Se connecter</h1>
+  <form id="login">
+    <div>
+      <label>Email</label>
+      <input id="email" type="email" required />
+    </div>
+    <div>
+      <label>Mot de passe</label>
+      <input id="motDePasse" type="password" required />
+    </div>
+    <button type="submit">Connexion</button>
+  </form>
+  <pre id="result"></pre>
+  <script>
+    document.getElementById('login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const motDePasse = document.getElementById('motDePasse').value;
+      try {
+        const basicAuth = 'Basic ' + btoa(email + ':' + motDePasse);
+        const resp = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, motDePasse })
+        });
+        if (!resp.ok) {
+          const txt = await resp.text();
+          document.getElementById('result').textContent = 'Erreur: ' + txt;
+          return;
+        }
+        const user = await resp.json();
+        // Keep admin auth token for protected admin endpoints.
+        localStorage.setItem('adminBasicAuth', basicAuth);
+        document.getElementById('result').textContent = JSON.stringify(user, null, 2);
+        // redirect to articles page on success
+        window.location.href = '/articles';
+      } catch (err) {
+        document.getElementById('result').textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

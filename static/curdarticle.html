@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CRUD admin des articles.">
+  <title>CURD Article</title>
+  <style>
+    :root { --bg:#f4f6fb; --card:#fff; --line:#d9dee7; --ink:#1a2233; --muted:#5c6576; --brand:#941313; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg)}
+    .wrap{max-width:1080px;margin:0 auto;padding:96px 18px 28px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 28px rgba(15,23,42,.08);padding:22px;margin-bottom:16px}
+    h1{margin:0 0 8px;font-size:30px}
+    .sub{color:var(--muted);margin-bottom:16px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}
+    label{font-size:13px;color:#374151;font-weight:600}
+    input,textarea,select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit}
+    textarea{min-height:130px;resize:vertical}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}
+    .primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .small{font-size:12px;color:var(--muted)}
+    .list{display:grid;gap:8px}.item{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .item b{display:block}.item span{color:var(--muted);font-size:13px}
+    .msg{margin-top:8px;font-size:13px;color:var(--muted);white-space:pre-wrap}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding-top:84px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>CURD Article (Admin)</h1>
+      <p class="sub">Créer et modifier des articles. Accès protégé côté serveur (admin uniquement).</p>
+      <div class="top-actions">
+        <button type="button" onclick="location.href='/crudarticle_tags'">Aller vers CRUD Article Tags</button>
+        <button type="button" onclick="location.href='/articles'">Retour Articles</button>
+      </div>
+
+      <div class="grid">
+        <div class="field"><label for="articleId">ID article (pour modifier)</label><input id="articleId" type="number" placeholder="Ex: 3"></div>
+        <div class="field"><label for="slug">Slug</label><input id="slug" type="text" placeholder="mon-article"></div>
+
+        <div class="field full"><label for="titre">Titre</label><input id="titre" type="text" placeholder="Titre de l'article" required></div>
+        <div class="field full"><label for="chapeau">Chapeau</label><textarea id="chapeau" placeholder="Résumé court"></textarea></div>
+        <div class="field full"><label for="contenu">Contenu</label><textarea id="contenu" placeholder="Contenu complet"></textarea></div>
+
+        <div class="field">
+          <label for="categoryId">Catégorie</label>
+          <select id="categoryId"><option value="">-- sélectionner --</option></select>
+        </div>
+        <div class="field"><label for="authorId">Author ID</label><input id="authorId" type="number" value="1"></div>
+
+        <div class="field full"><label for="tagSlugs">Tags (slugs, séparés par virgule)</label><input id="tagSlugs" type="text" placeholder="iran,frappes,analyse"></div>
+
+        <div class="field full">
+          <label for="imageUrl">Image URL</label>
+          <input id="imageUrl" type="text" placeholder="/uploads/xxx.jpg ou https://...">
+          <div class="small">Tu peux uploader un fichier image ci-dessous.</div>
+        </div>
+
+        <div class="field full"><label for="imageFile">Uploader une image</label><input id="imageFile" type="file" accept="image/*"></div>
+      </div>
+
+      <div class="actions">
+        <button id="createBtn" class="primary" type="button">Créer article</button>
+        <button id="updateBtn" class="primary" type="button" style="display:none">Modifier article</button>
+        <button id="cancelEditBtn" type="button" style="display:none">Annuler modification</button>
+        <button id="refreshBtn" type="button">Rafraîchir la liste</button>
+      </div>
+      <div id="msg" class="msg"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Articles existants</h2>
+      <div id="list" class="list"></div>
+    </section>
+  </div>
+
+  <script src="/load-navbar.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let isEditMode = false;
+    function show(msg, isError=false){ const el=$('msg'); el.textContent=msg; el.style.color=isError?'#b91c1c':'#4b5563'; }
+
+    function clearForm(){
+      $('articleId').value='';
+      $('titre').value='';
+      $('chapeau').value='';
+      $('slug').value='';
+      $('contenu').value='';
+      $('imageUrl').value='';
+      $('imageFile').value='';
+      $('tagSlugs').value='';
+    }
+
+    function setEditMode(active){
+      isEditMode = active;
+      $('createBtn').style.display = active ? 'none' : '';
+      $('updateBtn').style.display = active ? '' : 'none';
+      $('cancelEditBtn').style.display = active ? '' : 'none';
+    }
+
+    async function responseError(resp){
+      const body = (await resp.text()).trim();
+      return body || ('HTTP ' + resp.status + ' ' + resp.statusText);
+    }
+
+    async function loadMeta(){
+      const resp = await fetch('/api/admin/meta');
+      if(!resp.ok){ throw new Error(await resp.text()); }
+      const meta = await resp.json();
+      const select = $('categoryId');
+      const current = select.value;
+      select.innerHTML = '<option value="">-- sélectionner --</option>';
+      (meta.categories||[]).forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.nom + ' (' + c.slug + ')';
+        select.appendChild(opt);
+      });
+      if(current) select.value = current;
+    }
+
+    function getPayload(){
+      const tagSlugs = $('tagSlugs').value.split(',').map(s=>s.trim()).filter(Boolean);
+      return {
+        titre:$('titre').value,
+        chapeau:$('chapeau').value,
+        slug:$('slug').value,
+        contenu:$('contenu').value,
+        imageUrl:$('imageUrl').value,
+        categoryId:$('categoryId').value?Number($('categoryId').value):null,
+        authorId:$('authorId').value?Number($('authorId').value):null,
+        tagSlugs
+      };
+    }
+
+    async function ensureImageUploadedIfSelected(){
+      const file = $('imageFile').files[0];
+      if(!file){
+        return;
+      }
+      const dataBase64 = await new Promise((resolve,reject)=>{
+        const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file);
+      });
+      const resp = await fetch('/api/articles/upload', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({filename:file.name,dataBase64})
+      });
+      if(!resp.ok){
+        throw new Error(await responseError(resp));
+      }
+      const data = await resp.json();
+      $('imageUrl').value = data.url || '';
+      $('imageFile').value = '';
+      show('Image uploadée automatiquement: ' + (data.url || ''));
+    }
+
+    async function createArticle(){
+      await ensureImageUploadedIfSelected();
+      const resp=await fetch('/api/articles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(getPayload())});
+      if(!resp.ok) throw new Error(await responseError(resp));
+      const data=await resp.json();
+      $('articleId').value=data.id||'';
+      show('Article créé avec ID '+data.id);
+      setEditMode(true);
+      await loadArticles();
+    }
+
+    async function updateArticle(){
+      const id=$('articleId').value;
+      if(!id){ show('Renseigne article ID pour modifier.',true); return; }
+      await ensureImageUploadedIfSelected();
+      const resp=await fetch('/api/articles?id='+encodeURIComponent(id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(getPayload())});
+      if(!resp.ok) throw new Error(await responseError(resp));
+      const data=await resp.json();
+      show('Article modifié: '+(data.slug||data.id));
+      await loadArticles();
+    }
+
+    function fillForm(a){
+      $('articleId').value=a.id??'';
+      $('titre').value=a.titre||'';
+      $('chapeau').value=a.chapeau||'';
+      $('slug').value=a.slug||'';
+      $('contenu').value=a.contenu||'';
+      $('imageUrl').value=a.imageUrl||'';
+      $('categoryId').value=a.categoryId??'';
+      $('authorId').value=a.authorId??'';
+      $('tagSlugs').value=Array.isArray(a.tags)?a.tags.map(t=>t.slug).filter(Boolean).join(','):'';
+      setEditMode(true);
+      show('Mode modification activé pour l\'article ID ' + (a.id ?? '')); 
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function loadArticles(){
+      const list=$('list');
+      const resp=await fetch('/api/articles');
+      if(!resp.ok){ list.innerHTML='<div class="item"><span>Erreur chargement articles.</span></div>'; return; }
+      const articles=await resp.json();
+      if(!articles||!articles.length){ list.innerHTML='<div class="item"><span>Aucun article.</span></div>'; return; }
+      list.innerHTML='';
+      articles.forEach(a=>{
+        const el=document.createElement('div');
+        el.className='item';
+        el.innerHTML=`<div><b>${a.titre||'Sans titre'}</b><span>${a.slug||''}</span></div><button type="button">Éditer</button>`;
+        el.querySelector('button').addEventListener('click',()=>fillForm(a));
+        list.appendChild(el);
+      });
+    }
+
+    $('createBtn').addEventListener('click', async()=>{ try{await createArticle();}catch(e){show('Création échouée: '+e.message,true);} });
+    $('updateBtn').addEventListener('click', async()=>{ try{await updateArticle();}catch(e){show('Modification échouée: '+e.message,true);} });
+    $('cancelEditBtn').addEventListener('click', ()=>{ clearForm(); setEditMode(false); show('Retour en mode création.'); });
+    $('refreshBtn').addEventListener('click', async()=>{ try{await loadMeta(); await loadArticles(); show('Liste rafraîchie.');}catch(e){show('Erreur: '+e.message,true);} });
+    $('articleId').addEventListener('input', ()=>{
+      const hasId = Boolean($('articleId').value.trim());
+      if(hasId && !isEditMode){
+        setEditMode(true);
+      }
+      if(!hasId && isEditMode){
+        setEditMode(false);
+      }
+    });
+
+    (async()=>{ try{ setEditMode(false); await loadMeta(); await loadArticles(); } catch(e){ show('Erreur init: '+e.message,true); } })();
+  </script>
+</body>
+</html>

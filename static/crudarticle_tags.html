@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CRUD admin de la table article_tags.">
+  <title>CRUD Article Tags</title>
+  <style>
+    :root { --bg:#f4f6fb; --card:#fff; --line:#d9dee7; --ink:#1a2233; --muted:#5c6576; --brand:#941313; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg)}
+    .wrap{max-width:980px;margin:0 auto;padding:96px 18px 28px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 28px rgba(15,23,42,.08);padding:22px;margin-bottom:16px}
+    h1{margin:0 0 8px;font-size:30px}.sub{color:var(--muted);margin-bottom:16px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}
+    label{font-size:13px;color:#374151;font-weight:600}
+    input,select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}
+    .primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .list{display:grid;gap:8px}.item{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .item b{display:block}.item span{color:var(--muted);font-size:13px}
+    .msg{margin-top:8px;font-size:13px;color:var(--muted);white-space:pre-wrap}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding-top:84px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>CRUD Article Tags (Admin)</h1>
+      <p class="sub">Créer, modifier et supprimer les liaisons article/tag.</p>
+      <div class="top-actions">
+        <button type="button" onclick="location.href='/curdarticle'">Aller vers CURD Article</button>
+        <button type="button" onclick="location.href='/articles'">Retour Articles</button>
+      </div>
+
+      <div class="grid">
+        <div class="field"><label for="oldArticleId">Ancien Article ID (pour update)</label><input id="oldArticleId" type="number"></div>
+        <div class="field"><label for="oldTagId">Ancien Tag ID (pour update)</label><input id="oldTagId" type="number"></div>
+        <div class="field"><label for="articleId">Article ID</label><input id="articleId" type="number" required></div>
+        <div class="field"><label for="tagId">Tag ID</label><input id="tagId" type="number" required></div>
+      </div>
+
+      <div class="actions">
+        <button id="createBtn" class="primary" type="button">Créer liaison</button>
+        <button id="updateBtn" type="button">Modifier liaison</button>
+        <button id="deleteBtn" type="button">Supprimer liaison</button>
+        <button id="refreshBtn" type="button">Rafraîchir</button>
+      </div>
+      <div id="msg" class="msg"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Liaisons existantes</h2>
+      <div id="list" class="list"></div>
+    </section>
+  </div>
+
+  <script src="/load-navbar.js"></script>
+  <script>
+    const $ = (id)=>document.getElementById(id);
+    function show(msg,isError=false){const el=$('msg');el.textContent=msg;el.style.color=isError?'#b91c1c':'#4b5563';}
+
+    function pick(item){
+      $('oldArticleId').value=item.articleId;
+      $('oldTagId').value=item.tagId;
+      $('articleId').value=item.articleId;
+      $('tagId').value=item.tagId;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function loadLinks(){
+      const resp = await fetch('/api/article-tags');
+      if(!resp.ok){ throw new Error(await resp.text()); }
+      const items = await resp.json();
+      const list = $('list');
+      if(!items.length){ list.innerHTML='<div class="item"><span>Aucune liaison.</span></div>'; return; }
+      list.innerHTML='';
+      items.forEach(it=>{
+        const el=document.createElement('div');
+        el.className='item';
+        el.innerHTML=`<div><b>Article #${it.articleId} (${it.articleSlug||''})</b><span>Tag #${it.tagId} - ${it.tagNom||it.tagSlug||''}</span></div><button type="button">Éditer</button>`;
+        el.querySelector('button').addEventListener('click',()=>pick(it));
+        list.appendChild(el);
+      });
+    }
+
+    async function createLink(){
+      const articleId = Number($('articleId').value);
+      const tagId = Number($('tagId').value);
+      const resp = await fetch('/api/article-tags',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({articleId,tagId})});
+      if(!resp.ok) throw new Error(await resp.text());
+      show('Liaison créée.');
+      await loadLinks();
+    }
+
+    async function updateLink(){
+      const oldArticleId = Number($('oldArticleId').value);
+      const oldTagId = Number($('oldTagId').value);
+      const articleId = Number($('articleId').value);
+      const tagId = Number($('tagId').value);
+      const resp = await fetch('/api/article-tags',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldArticleId,oldTagId,articleId,tagId})});
+      if(!resp.ok) throw new Error(await resp.text());
+      show('Liaison modifiée.');
+      await loadLinks();
+    }
+
+    async function deleteLink(){
+      const articleId = Number($('articleId').value);
+      const tagId = Number($('tagId').value);
+      const resp = await fetch('/api/article-tags?articleId='+encodeURIComponent(articleId)+'&tagId='+encodeURIComponent(tagId),{method:'DELETE'});
+      if(!resp.ok) throw new Error(await resp.text());
+      show('Liaison supprimée.');
+      await loadLinks();
+    }
+
+    $('createBtn').addEventListener('click', async()=>{ try{await createLink();}catch(e){show('Création échouée: '+e.message,true);} });
+    $('updateBtn').addEventListener('click', async()=>{ try{await updateLink();}catch(e){show('Modification échouée: '+e.message,true);} });
+    $('deleteBtn').addEventListener('click', async()=>{ try{await deleteLink();}catch(e){show('Suppression échouée: '+e.message,true);} });
+    $('refreshBtn').addEventListener('click', async()=>{ try{await loadLinks();show('Liste rafraîchie.');}catch(e){show('Erreur: '+e.message,true);} });
+
+    (async()=>{ try{ await loadLinks(); } catch(e){ show('Erreur init: '+e.message,true);} })();
+  </script>
+</body>
+</html>

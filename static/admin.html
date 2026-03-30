@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Administration des articles 24h Mada.">
+  <title>Admin - Articles</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --line: #d9dee7;
+      --ink: #1a2233;
+      --muted: #5c6576;
+      --brand: #941313;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .wrap {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 96px 18px 28px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 13px;
+      color: #374151;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    textarea { min-height: 140px; resize: vertical; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .item b { display: block; }
+    .item span { color: var(--muted); font-size: 13px; }
+
+    .msg {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .wrap { padding-top: 84px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>Administration des articles</h1>
+      <p class="sub">Créer un article, modifier un article existant, et uploader une image.</p>
+
+      <div class="grid">
+        <div class="field">
+          <label for="articleId">ID article (pour modifier)</label>
+          <input id="articleId" type="number" placeholder="Ex: 3">
+        </div>
+        <div class="field">
+          <label for="slug">Slug</label>
+          <input id="slug" type="text" placeholder="mon-article">
+        </div>
+
+        <div class="field full">
+          <label for="titre">Titre</label>
+          <input id="titre" type="text" placeholder="Titre de l'article" required>
+        </div>
+
+        <div class="field full">
+          <label for="chapeau">Chapeau</label>
+          <textarea id="chapeau" placeholder="Résumé court"></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="contenu">Contenu</label>
+          <textarea id="contenu" placeholder="Contenu complet"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="categoryId">Category ID</label>
+          <input id="categoryId" type="number" placeholder="Ex: 1">
+        </div>
+
+        <div class="field">
+          <label for="authorId">Author ID</label>
+          <input id="authorId" type="number" value="1">
+        </div>
+
+        <div class="field full">
+          <label for="tagSlugs">Tags (slugs, séparés par virgule)</label>
+          <input id="tagSlugs" type="text" placeholder="iran,frappes,analyse">
+        </div>
+
+        <div class="field full">
+          <label for="imageUrl">Image URL</label>
+          <input id="imageUrl" type="text" placeholder="/uploads/xxx.jpg ou https://...">
+          <div class="small">Tu peux aussi uploader un fichier image ci-dessous.</div>
+        </div>
+
+        <div class="field full">
+          <label for="imageFile">Uploader une image</label>
+          <input id="imageFile" type="file" accept="image/*">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="uploadBtn" type="button">Uploader l'image</button>
+        <button id="createBtn" class="primary" type="button">Créer article</button>
+        <button id="updateBtn" type="button">Modifier article</button>
+        <button id="refreshBtn" type="button">Rafraîchir la liste</button>
+      </div>
+      <div id="msg" class="msg"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Articles existants</h2>
+      <div id="list" class="list"></div>
+    </section>
+  </div>
+
+  <script src="/load-navbar.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function show(msg, isError = false) {
+      const el = $('msg');
+      el.textContent = msg;
+      el.style.color = isError ? '#b91c1c' : '#4b5563';
+    }
+
+    function getPayload() {
+      const tagSlugs = $('tagSlugs').value
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      const payload = {
+        titre: $('titre').value,
+        chapeau: $('chapeau').value,
+        slug: $('slug').value,
+        contenu: $('contenu').value,
+        imageUrl: $('imageUrl').value,
+        categoryId: $('categoryId').value ? Number($('categoryId').value) : null,
+        authorId: $('authorId').value ? Number($('authorId').value) : null,
+        tagSlugs
+      };
+      return payload;
+    }
+
+    async function uploadImage() {
+      const file = $('imageFile').files[0];
+      if (!file) {
+        show('Choisis un fichier image avant upload.', true);
+        return;
+      }
+      const dataBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const resp = await fetch('/api/articles/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, dataBase64 })
+      });
+      if (!resp.ok) {
+        throw new Error(await resp.text());
+      }
+      const data = await resp.json();
+      $('imageUrl').value = data.url || '';
+      show('Image uploadée: ' + data.url);
+    }
+
+    async function ensureImageUploadedIfSelected() {
+      const file = $('imageFile').files[0];
+      if (!file) {
+        return;
+      }
+      const dataBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const resp = await fetch('/api/articles/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, dataBase64 })
+      });
+      if (!resp.ok) {
+        throw new Error(await resp.text());
+      }
+      const data = await resp.json();
+      $('imageUrl').value = data.url || '';
+      $('imageFile').value = '';
+      show('Image uploadée automatiquement: ' + data.url);
+    }
+
+    async function createArticle() {
+      await ensureImageUploadedIfSelected();
+      const payload = getPayload();
+      const resp = await fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!resp.ok) throw new Error(await resp.text());
+      const data = await resp.json();
+      $('articleId').value = data.id || '';
+      show('Article créé avec ID ' + data.id);
+      await loadArticles();
+    }
+
+    async function updateArticle() {
+      const id = $('articleId').value;
+      if (!id) {
+        show('Renseigne article ID pour modifier.', true);
+        return;
+      }
+      await ensureImageUploadedIfSelected();
+      const payload = getPayload();
+      const resp = await fetch('/api/articles?id=' + encodeURIComponent(id), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!resp.ok) throw new Error(await resp.text());
+      const data = await resp.json();
+      show('Article modifié: ' + (data.slug || data.id));
+      await loadArticles();
+    }
+
+    function fillForm(a) {
+      $('articleId').value = a.id ?? '';
+      $('titre').value = a.titre || '';
+      $('chapeau').value = a.chapeau || '';
+      $('slug').value = a.slug || '';
+      $('contenu').value = a.contenu || '';
+      $('imageUrl').value = a.imageUrl || '';
+      $('categoryId').value = a.categoryId ?? '';
+      $('authorId').value = a.authorId ?? '';
+      $('tagSlugs').value = Array.isArray(a.tags) ? a.tags.map(t => t.slug).filter(Boolean).join(',') : '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function loadArticles() {
+      const list = $('list');
+      const resp = await fetch('/api/articles');
+      if (!resp.ok) {
+        list.innerHTML = '<div class="item"><span>Erreur chargement articles.</span></div>';
+        return;
+      }
+      const articles = await resp.json();
+      if (!articles || !articles.length) {
+        list.innerHTML = '<div class="item"><span>Aucun article.</span></div>';
+        return;
+      }
+      list.innerHTML = '';
+      articles.forEach(a => {
+        const el = document.createElement('div');
+        el.className = 'item';
+        el.innerHTML = `<div><b>${a.titre || 'Sans titre'}</b><span>${a.slug || ''}</span></div><button type="button">Éditer</button>`;
+        el.querySelector('button').addEventListener('click', () => fillForm(a));
+        list.appendChild(el);
+      });
+    }
+
+    $('uploadBtn').addEventListener('click', async () => {
+      try { await uploadImage(); } catch (e) { show('Upload échoué: ' + e.message, true); }
+    });
+
+    $('createBtn').addEventListener('click', async () => {
+      try { await createArticle(); } catch (e) { show('Création échouée: ' + e.message, true); }
+    });
+
+    $('updateBtn').addEventListener('click', async () => {
+      try { await updateArticle(); } catch (e) { show('Modification échouée: ' + e.message, true); }
+    });
+
+    $('refreshBtn').addEventListener('click', async () => {
+      try { await loadArticles(); show('Liste rafraîchie.'); } catch (e) { show('Erreur: ' + e.message, true); }
+    });
+
+    loadArticles();
+  </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Liste des articles 24h Mada avec titre, chapeau et image.">
+  <meta property="og:title" content="Articles - 24h Mada">
+  <meta property="og:description" content="Liste des articles 24h Mada avec titre, chapeau et image.">
+  <meta property="og:image" content="/favicon.ico">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="/articles">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0b57d0">
+  <title>Articles</title>
+  <style>
+    :root {
+      --ink: #1b1b1b;
+      --muted: #5a5a5a;
+      --paper: #ffffff;
+      --line: #e5e7eb;
+      --brand: #941313;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.95), transparent 45%),
+        linear-gradient(160deg, #f7f8fb 0%, #eef1f6 55%, #f5f7fb 100%);
+      min-height: 100vh;
+    }
+
+    .main-content {
+      padding-top: 100px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 48px;
+    }
+
+    .page-container {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: var(--paper);
+      border-radius: 20px;
+      border: 1px solid #d9dce3;
+      box-shadow:
+        0 22px 44px rgba(15, 23, 42, 0.12),
+        0 6px 16px rgba(15, 23, 42, 0.08);
+      padding: 38px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.1;
+      margin-bottom: 30px;
+      letter-spacing: 0.01em;
+      position: relative;
+      padding-bottom: 14px;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 3px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #c19a4a, var(--brand));
+    }
+
+    #activeFilters {
+      text-align: center;
+      color: var(--muted);
+      margin: -10px 0 22px;
+      font-size: 14px;
+      font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    }
+
+    #list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .article {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      gap: 18px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: fadeInUp 0.35s ease-out forwards;
+    }
+
+    .article:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    .article-image {
+      flex-shrink: 0;
+      width: 230px;
+    }
+
+    .thumb {
+      width: 100%;
+      height: 155px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #e8ebf0;
+    }
+
+    .article-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .article-content h2 {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.2;
+    }
+
+    .article-content h2 a {
+      color: #111827;
+      text-decoration: none;
+      background-image: linear-gradient(transparent calc(100% - 2px), rgba(148, 19, 19, 0.25) 2px);
+      background-repeat: no-repeat;
+      background-size: 0 100%;
+      transition: color 0.2s ease, background-size 0.22s ease;
+    }
+
+    .article-content h2 a:hover {
+      color: var(--brand);
+      background-size: 100% 100%;
+    }
+
+    .chapeau {
+      color: #4b5563;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    #list:empty:before {
+      content: "Chargement...";
+      display: block;
+      text-align: center;
+      color: #6b7280;
+      font-size: 16px;
+      padding: 34px;
+      border: 1px dashed #d1d5db;
+      border-radius: 12px;
+      background: #fbfbfc;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page-container {
+        padding: 26px 22px;
+      }
+
+      .article {
+        flex-direction: column;
+      }
+
+      .article-image {
+        width: 100%;
+      }
+
+      .thumb {
+        height: 220px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .main-content {
+        padding-top: 84px;
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .page-container {
+        border-radius: 14px;
+        padding: 20px 14px;
+      }
+
+      #activeFilters {
+        font-size: 13px;
+      }
+
+      .thumb {
+        height: 190px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Contenu principal avec padding-top pour éviter d'être caché sous la navbar -->
+  <div class="main-content">
+    <div class="page-container">
+      <h1>Liste des articles</h1>
+      <p id="activeFilters" style="text-align:center;color:#6b7280;margin:-14px 0 20px;">Filtres: aucun</p>
+      <div id="list">Chargement...</div>
+    </div>
+  </div>
+
+  <script src="/load-navbar.js"></script>
+
+  <script>
+    const state = {
+      articles: [],
+      filtered: [],
+      category: '',
+      tag: '',
+      q: ''
+    };
+
+    function getCategorySlug(a) {
+      return (a.category && a.category.slug) ? a.category.slug : '';
+    }
+
+    function getCategoryName(a) {
+      return (a.category && a.category.nom) ? a.category.nom : 'General';
+    }
+
+    function getTags(a) {
+      return Array.isArray(a.tags) ? a.tags : [];
+    }
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function updateActiveFiltersLabel() {
+      const parts = [];
+      if (state.category) parts.push('categorie=' + state.category);
+      if (state.tag) parts.push('tag=' + state.tag);
+      if (state.q) parts.push('recherche="' + state.q + '"');
+      document.getElementById('activeFilters').textContent = parts.length ? ('Filtres: ' + parts.join(' | ')) : 'Filtres: aucun';
+    }
+
+    function renderNavbarFilters() {
+      const categoryWrap = document.getElementById('navbarCategoryFilters');
+      const tagWrap = document.getElementById('navbarTagFilters');
+      const search = document.getElementById('navbarSearch');
+      const reset = document.getElementById('navbarReset');
+      if (!categoryWrap || !tagWrap || !search || !reset) return;
+
+      const categories = new Map();
+      const tags = new Map();
+      state.articles.forEach(a => {
+        const cSlug = getCategorySlug(a);
+        if (cSlug) categories.set(cSlug, getCategoryName(a));
+        getTags(a).forEach(t => {
+          if (t && t.slug) tags.set(t.slug, t.nom || t.slug);
+        });
+      });
+
+      const catHtml = [`<button class="chip ${state.category === '' ? 'active' : ''}" data-cat="">Toutes</button>`]
+        .concat(Array.from(categories.entries()).map(([slug, name]) => `<button class="chip ${state.category === slug ? 'active' : ''}" data-cat="${escapeHtml(slug)}">${escapeHtml(name)}</button>`))
+        .join('');
+      categoryWrap.innerHTML = catHtml;
+
+      const tagHtml = [`<button class="chip ${state.tag === '' ? 'active' : ''}" data-tag="">Tous</button>`]
+        .concat(Array.from(tags.entries()).map(([slug, name]) => `<button class="chip ${state.tag === slug ? 'active' : ''}" data-tag="${escapeHtml(slug)}">#${escapeHtml(name)}</button>`))
+        .join('');
+      tagWrap.innerHTML = tagHtml;
+
+      categoryWrap.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.category = btn.dataset.cat || '';
+          applyFilters();
+        });
+      });
+
+      tagWrap.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.tag = btn.dataset.tag || '';
+          applyFilters();
+        });
+      });
+
+      search.value = state.q;
+      search.oninput = () => {
+        state.q = search.value || '';
+        applyFilters();
+      };
+
+      reset.onclick = () => {
+        state.category = '';
+        state.tag = '';
+        state.q = '';
+        search.value = '';
+        applyFilters();
+      };
+    }
+
+    function applyFilters() {
+      const q = state.q.trim().toLowerCase();
+      state.filtered = state.articles.filter(a => {
+        const okCategory = !state.category || getCategorySlug(a) === state.category;
+        const okTag = !state.tag || getTags(a).some(t => t && t.slug === state.tag);
+        const hay = `${a.titre || ''} ${a.chapeau || ''}`.toLowerCase();
+        const okQ = !q || hay.includes(q);
+        return okCategory && okTag && okQ;
+      });
+      renderArticles();
+      renderNavbarFilters();
+      updateActiveFiltersLabel();
+    }
+
+    function renderArticles() {
+      const articles = state.filtered;
+      if (!articles || articles.length === 0) {
+        document.getElementById('list').innerHTML = '<div style="text-align:center; color:#6b7280; padding:40px;">📝 Aucun article pour ces .</div>';
+        return;
+      }
+      const out = articles.map(a => `
+        <div class="article">
+          ${a.imageUrl ? `
+            <div class="article-image">
+              <img class="thumb" src="${a.imageUrl}" alt="${a.titre || 'Image article'}">
+            </div>
+          ` : ''}
+          <div class="article-content">
+            <h2><a href="/articles/${encodeURIComponent(a.slug || '')}">${a.titre || 'Sans titre'}</a></h2>
+            <p class="chapeau">${a.chapeau || ''}</p>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('list').innerHTML = out;
+    }
+
+    async function load() {
+      try {
+        const resp = await fetch('/api/articles');
+        if (!resp.ok) {
+          document.getElementById('list').innerHTML = `<div style="text-align:center; color:#dc2626; padding:40px;">❌ Erreur: ${resp.statusText}</div>`;
+          return;
+        }
+        const articles = await resp.json();
+        if (!articles || articles.length === 0) {
+          document.getElementById('list').innerHTML = '<div style="text-align:center; color:#6b7280; padding:40px;">📝 Aucun article disponible.</div>';
+          return;
+        }
+        state.articles = articles;
+        state.filtered = [...articles];
+        applyFilters();
+      } catch (err) {
+        document.getElementById('list').innerHTML = `<div style="text-align:center; color:#dc2626; padding:40px;">❌ Erreur réseau: ${err.message}</div>`;
+      }
+    }
+
+    document.addEventListener('navbar:loaded', () => {
+      renderNavbarFilters();
+    });
+
+    load();
+  </script>
+</body>
+</html>
