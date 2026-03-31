@@ -5,26 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="CRUD admin de la table article_tags.">
   <title>CRUD Article Tags</title>
-  <style>
-    :root { --bg:#f4f6fb; --card:#fff; --line:#d9dee7; --ink:#1a2233; --muted:#5c6576; --brand:#941313; }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg)}
-    .wrap{max-width:980px;margin:0 auto;padding:96px 18px 28px}
-    .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 28px rgba(15,23,42,.08);padding:22px;margin-bottom:16px}
-    h1{margin:0 0 8px;font-size:30px}.sub{color:var(--muted);margin-bottom:16px}
-    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}
-    label{font-size:13px;color:#374151;font-weight:600}
-    input,select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit}
-    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}
-    .primary{background:var(--brand);color:#fff;border-color:var(--brand)}
-    .list{display:grid;gap:8px}.item{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
-    .item b{display:block}.item span{color:var(--muted);font-size:13px}
-    .msg{margin-top:8px;font-size:13px;color:var(--muted);white-space:pre-wrap}
-    @media (max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding-top:84px}}
-  </style>
+  <link rel="stylesheet" href="css/crudarticle_tags.css">
 </head>
 <body>
   <div class="wrap">
@@ -59,7 +40,7 @@
     </section>
   </div>
 
-  <script src="/load-navbar.js"></script>
+  <script src="/load-navbar.min.js"></script>
   <script>
     const $ = (id)=>document.getElementById(id);
     function show(msg,isError=false){const el=$('msg');el.textContent=msg;el.style.color=isError?'#b91c1c':'#4b5563';}
