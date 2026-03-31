@@ -34,12 +34,14 @@ public class Main {
 		com.guerre.backend.controller.UserController userController = new com.guerre.backend.controller.UserController();
 		com.guerre.backend.controller.ArticleController articleController = new com.guerre.backend.controller.ArticleController();
 		com.guerre.backend.controller.ArticleTagController articleTagController = new com.guerre.backend.controller.ArticleTagController();
+		com.guerre.backend.controller.AdminController adminController = new com.guerre.backend.controller.AdminController();
 
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 		server.createContext("/api/auth/login", exchange -> authController.handle(exchange, gson));
 		server.createContext("/api/users", exchange -> userController.handle(exchange, gson));
 		server.createContext("/api/articles", exchange -> articleController.handle(exchange, gson));
 		server.createContext("/api/article-tags", exchange -> articleTagController.handle(exchange, gson));
+		server.createContext("/api/admin", exchange -> adminController.handle(exchange, gson));
 
 		// static file handler: serve files from backend/static
 		server.createContext("/", exchange -> {
