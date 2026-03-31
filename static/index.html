@@ -11,159 +11,288 @@
   <meta property="og:url" content="/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#0b57d0">
+  <meta name="theme-color" content="#000000">
   <title>Connexion - 24h Mada</title>
 
   <style>
-    :root {
-      --ink: #1b1b1b;
-      --muted: #5a5a5a;
-      --paper: #ffffff;
-      --line: #e5e7eb;
-      --brand: #941313;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: Georgia, 'Times New Roman', serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.95), transparent 45%),
-        linear-gradient(160deg, #f7f8fb 0%, #eef1f6 55%, #f5f7fb 100%);
       min-height: 100vh;
-    }
-
-    .main-content {
-      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%, #1a1a1a 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 12s ease infinite;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       padding: 20px;
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 520px;
-      background: var(--paper);
-      border: 1px solid #d9dce3;
-      border-radius: 20px;
-      box-shadow:
-        0 22px 44px rgba(15, 23, 42, 0.12),
-        0 6px 16px rgba(15, 23, 42, 0.08);
-      padding: 30px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: clamp(30px, 5vw, 42px);
-      line-height: 1.1;
-      margin-bottom: 12px;
       position: relative;
-      padding-bottom: 12px;
     }
 
-    h1::after {
+    /* Animation du dégradé noir et blanc */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Effet de grain/texture */
+    body::before {
       content: '';
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 84px;
-      height: 3px;
-      border-radius: 2px;
-      background: linear-gradient(90deg, #c19a4a, var(--brand));
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjciIG51bU9jdGF2ZXM9IjMiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjZikiIG9wYWNpdHk9IjAuMDYiLz48L3N2Zz4=');
+      pointer-events: none;
+      opacity: 0.3;
     }
 
+    /* Carte avec effet glassmorphism noir/blanc */
+    .login-card {
+      background: rgba(10, 10, 10, 0.35);
+      backdrop-filter: blur(12px);
+      border-radius: 32px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .login-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 
+        0 35px 60px -15px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.25);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Titre avec dégradé gris */
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      text-align: center;
+      background: linear-gradient(135deg, #ffffff, #a0a0a0, #e0e0e0, #707070);
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 4s ease infinite;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Sous-titre */
     .sub {
       text-align: center;
-      color: var(--muted);
-      margin-bottom: 20px;
-      font-size: 15px;
+      color: rgba(220, 220, 220, 0.85);
+      font-size: 14px;
+      margin-bottom: 32px;
+      font-weight: 400;
+      letter-spacing: 0.3px;
     }
 
-    .field { margin-bottom: 12px; }
+    /* Champs de formulaire */
+    .field {
+      margin-bottom: 20px;
+    }
 
     label {
       display: block;
-      margin-bottom: 6px;
-      color: #374151;
-      font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     input {
       width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 11px 12px;
-      font-size: 14px;
+      padding: 14px 16px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      font-size: 15px;
       font-family: inherit;
+      transition: all 0.2s ease;
+      color: #ffffff;
+    }
+
+    input::placeholder {
+      color: rgba(160, 160, 160, 0.6);
     }
 
     input:focus {
       outline: none;
-      border-color: #b7c2d3;
-      box-shadow: 0 0 0 3px rgba(148, 19, 19, 0.08);
+      background: rgba(30, 30, 30, 0.95);
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+      transform: scale(1.01);
     }
 
+    /* Bouton monochrome avec dégradé */
     button {
       width: 100%;
-      margin-top: 8px;
-      border: 1px solid var(--brand);
-      background: var(--brand);
-      color: #fff;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 14px;
+      padding: 14px;
+      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      color: white;
+      font-size: 16px;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
     }
 
-    button:hover { filter: brightness(1.05); }
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
 
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #3a3a3a, #252525);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Zone de résultat */
     #result {
-      margin-top: 12px;
-      padding: 10px;
-      background: #fafbfc;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      color: var(--muted);
+      margin-top: 20px;
+      padding: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      color: rgba(255, 255, 255, 0.85);
       font-size: 13px;
-      white-space: pre-wrap;
-      min-height: 42px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    /* Animation de chargement */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Style pour autocomplete */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+      -webkit-text-fill-color: white;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .login-card {
+        padding: 32px 24px;
+        margin: 16px;
+      }
+      
+      button {
+        padding: 12px;
+      }
+      
+      input {
+        padding: 12px 14px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="main-content">
-    <div class="login-card">
-      <h1>Connexion</h1>
-      <p class="sub">Accede a 24h Mada et a l'interface d'administration</p>
+  <div class="login-card">
+    <h1>24h Mada</h1>
+    <p class="sub">Connectez-vous pour accéder à votre espace</p>
 
-      <form id="login">
-        <div class="field">
-          <label for="email">Email</label>
-          <input id="email" type="email" required />
-        </div>
-        <div class="field">
-          <label for="motDePasse">Mot de passe</label>
-          <input id="motDePasse" type="password" required />
-        </div>
-        <button type="submit">Se connecter</button>
-      </form>
+    <form id="login">
+      <div class="field">
+        <label for="email">Adresse email</label>
+        <input 
+          id="email" 
+          type="email" 
+          required 
+          placeholder="exemple@24hmada.com"
+          autocomplete="email"
+        />
+      </div>
+      <div class="field">
+        <label for="motDePasse">Mot de passe</label>
+        <input 
+          id="motDePasse" 
+          type="password" 
+          required 
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+      </div>
+      <button type="submit">Se connecter</button>
+    </form>
 
-      <div id="result"></div>
-    </div>
+    <div id="result"></div>
   </div>
 
   <script>
+    // Remplissage automatique pour le développement
+    document.getElementById('email').value = 'toky@gmail.com';
+    document.getElementById('motDePasse').value = '123';
+
     document.getElementById('login').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const motDePasse = document.getElementById('motDePasse').value;
+      const resultDiv = document.getElementById('result');
+      
+      resultDiv.textContent = '⏳ Connexion en cours...';
+      resultDiv.style.animation = 'pulse 1s infinite';
+      
       try {
         const basicAuth = 'Basic ' + btoa(email + ':' + motDePasse);
         const resp = await fetch('/api/auth/login', {
@@ -171,16 +300,25 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, motDePasse })
         });
+        
         if (!resp.ok) {
           const txt = await resp.text();
-          document.getElementById('result').textContent = 'Erreur: ' + txt;
+          resultDiv.style.animation = '';
+          resultDiv.textContent = '❌ ' + txt;
           return;
         }
+        
         localStorage.setItem('adminBasicAuth', basicAuth);
-        document.getElementById('result').textContent = 'Connexion reussie. Redirection...';
-        window.location.href = '/articles';
+        resultDiv.textContent = '✅ Connexion réussie ! Redirection...';
+        resultDiv.style.animation = '';
+        
+        setTimeout(() => {
+          window.location.href = '/articles';
+        }, 1000);
+        
       } catch (err) {
-        document.getElementById('result').textContent = 'Erreur reseau: ' + err.message;
+        resultDiv.style.animation = '';
+        resultDiv.textContent = '⚠️ Erreur réseau: ' + err.message;
       }
     });
   </script>
