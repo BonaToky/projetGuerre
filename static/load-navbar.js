@@ -40,12 +40,20 @@ function loadNavbar() {
         if (!sidebar || !overlay) return;
         sidebar.style.display = 'block';
         overlay.style.display = 'block';
+        if (settingsBtn) {
+          settingsBtn.classList.add('active');
+          settingsBtn.setAttribute('aria-expanded', 'true');
+        }
       }
 
       function closeSidebar() {
         if (!sidebar || !overlay) return;
         sidebar.style.display = 'none';
         overlay.style.display = 'none';
+        if (settingsBtn) {
+          settingsBtn.classList.remove('active');
+          settingsBtn.setAttribute('aria-expanded', 'false');
+        }
       }
 
       if (settingsBtn) {
@@ -57,6 +65,11 @@ function loadNavbar() {
       if (overlay) {
         overlay.addEventListener('click', closeSidebar);
       }
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeSidebar();
+        }
+      });
 
       // Admin links visibility is decided by backend auth, not only UI state.
       const adminAuth = localStorage.getItem('adminBasicAuth');

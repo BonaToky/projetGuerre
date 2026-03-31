@@ -239,7 +239,9 @@
       filtered: [],
       category: '',
       tag: '',
-      q: ''
+      q: '',
+      categoryOptions: [],
+      categoryIdBySlug: {}
     };
 
     function getCategorySlug(a) {
@@ -271,6 +273,78 @@
       document.getElementById('activeFilters').textContent = parts.length ? ('Filtres: ' + parts.join(' | ')) : 'Filtres: aucun';
     }
 
+    async function ensureCategoryOptions() {
+      const derived = new Map();
+      state.articles.forEach(a => {
+        const slug = getCategorySlug(a);
+        if (slug) {
+          derived.set(slug, {
+            slug,
+            nom: getCategoryName(a),
+            id: typeof a.categoryId === 'number' ? a.categoryId : null
+          });
+        }
+      });
+
+      if (derived.size > 0) {
+        state.categoryOptions = Array.from(derived.values());
+        state.categoryIdBySlug = state.categoryOptions.reduce((acc, c) => {
+          if (typeof c.id === 'number') {
+            acc[c.slug] = c.id;
+          }
+          return acc;
+        }, {});
+        return;
+      }
+
+      try {
+        const adminAuth = localStorage.getItem('adminBasicAuth');
+        const req = { headers: {} };
+        if (adminAuth) {
+          req.headers.Authorization = adminAuth;
+        }
+        const resp = await fetch('/api/admin/meta', req);
+        if (!resp.ok) {
+          state.categoryOptions = [];
+          state.categoryIdBySlug = {};
+          return;
+        }
+        const meta = await resp.json();
+        state.categoryOptions = Array.isArray(meta.categories)
+          ? meta.categories
+              .filter(c => c && c.slug)
+              .map(c => ({ slug: c.slug, nom: c.nom || c.slug, id: c.id }))
+          : [];
+        state.categoryIdBySlug = state.categoryOptions.reduce((acc, c) => {
+          if (typeof c.id === 'number') {
+            acc[c.slug] = c.id;
+          }
+          return acc;
+        }, {});
+      } catch (_) {
+        state.categoryOptions = [];
+        state.categoryIdBySlug = {};
+      }
+    }
+
+    function articleMatchesCategory(article, selectedSlug) {
+      if (!selectedSlug) {
+        return true;
+      }
+
+      const directSlug = getCategorySlug(article);
+      if (directSlug === selectedSlug) {
+        return true;
+      }
+
+      const expectedId = state.categoryIdBySlug[selectedSlug];
+      if (typeof expectedId === 'number' && typeof article.categoryId === 'number') {
+        return article.categoryId === expectedId;
+      }
+
+      return false;
+    }
+
     function renderNavbarFilters() {
       const categoryWrap = document.getElementById('navbarCategoryFilters');
       const tagWrap = document.getElementById('navbarTagFilters');
@@ -278,18 +352,15 @@
       const reset = document.getElementById('navbarReset');
       if (!categoryWrap || !tagWrap || !search || !reset) return;
 
-      const categories = new Map();
       const tags = new Map();
       state.articles.forEach(a => {
-        const cSlug = getCategorySlug(a);
-        if (cSlug) categories.set(cSlug, getCategoryName(a));
         getTags(a).forEach(t => {
           if (t && t.slug) tags.set(t.slug, t.nom || t.slug);
         });
       });
 
       const catHtml = [`<button class="chip ${state.category === '' ? 'active' : ''}" data-cat="">Toutes</button>`]
-        .concat(Array.from(categories.entries()).map(([slug, name]) => `<button class="chip ${state.category === slug ? 'active' : ''}" data-cat="${escapeHtml(slug)}">${escapeHtml(name)}</button>`))
+        .concat(state.categoryOptions.map(c => `<button class="chip ${state.category === c.slug ? 'active' : ''}" data-cat="${escapeHtml(c.slug)}">${escapeHtml(c.nom)}</button>`))
         .join('');
       categoryWrap.innerHTML = catHtml;
 
@@ -327,10 +398,11 @@
       };
     }
 
-    function applyFilters() {
+    async function applyFilters() {
       const q = state.q.trim().toLowerCase();
+      await ensureCategoryOptions();
       state.filtered = state.articles.filter(a => {
-        const okCategory = !state.category || getCategorySlug(a) === state.category;
+        const okCategory = articleMatchesCategory(a, state.category);
         const okTag = !state.tag || getTags(a).some(t => t && t.slug === state.tag);
         const hay = `${a.titre || ''} ${a.chapeau || ''}`.toLowerCase();
         const okQ = !q || hay.includes(q);
@@ -377,7 +449,7 @@
         }
         state.articles = articles;
         state.filtered = [...articles];
-        applyFilters();
+        await applyFilters();
       } catch (err) {
         document.getElementById('list').innerHTML = `<div style="text-align:center; color:#dc2626; padding:40px;">❌ Erreur réseau: ${err.message}</div>`;
       }
