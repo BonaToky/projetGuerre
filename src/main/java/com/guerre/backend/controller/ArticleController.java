@@ -282,7 +282,13 @@ public class ArticleController {
         String slug = body.get("slug") == null ? current.getSlug() : safeSlug(body.get("slug").toString());
         String contenu = body.get("contenu") == null ? current.getContenu() : body.get("contenu").toString();
         String imageUrl = body.get("imageUrl") == null ? current.getImageUrl() : body.get("imageUrl").toString();
-        Long categoryId = body.containsKey("categoryId") ? parseNullableLong(body.get("categoryId")) : current.getCategoryId();
+        Long categoryId = current.getCategoryId();
+        if (body.containsKey("categoryId") && body.get("categoryId") != null) {
+            Long parsed = parseNullableLong(body.get("categoryId"));
+            if (parsed != null) {
+                categoryId = parsed;
+            }
+        }
         Long authorId = body.containsKey("authorId") ? parseNullableLong(body.get("authorId")) : current.getAuthorId();
 
         @SuppressWarnings("unchecked")
