@@ -151,6 +151,15 @@
       background-size: 100% 100%;
     }
 
+    .meta {
+      margin-top: 12px;
+      color: #6b7280;
+      font-size: 13px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
     .chapeau {
       color: #4b5563;
       line-height: 1.65;
@@ -263,6 +272,13 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      return d.toLocaleString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
     function updateActiveFiltersLabel() {
@@ -419,19 +435,27 @@
         document.getElementById('list').innerHTML = '<div style="text-align:center; color:#6b7280; padding:40px;">📝 Aucun article pour ces .</div>';
         return;
       }
-      const out = articles.map(a => `
+      const out = articles.map(a => {
+        const created = a.createdAt || a.created_at || '';
+        const updated = a.updatedAt || a.updated_at || '';
+        return `
         <div class="article">
           ${a.imageUrl ? `
             <div class="article-image">
-              <img class="thumb" src="${a.imageUrl}" alt="${a.titre || 'Image article'}">
+              <img class="thumb" src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.titre || 'Image article')}">
             </div>
           ` : ''}
           <div class="article-content">
-            <h2><a href="/articles/${encodeURIComponent(a.slug || '')}">${a.titre || 'Sans titre'}</a></h2>
-            <p class="chapeau">${a.chapeau || ''}</p>
+            <h2><a href="/articles/${encodeURIComponent(a.slug || '')}">${escapeHtml(a.titre || 'Sans titre')}</a></h2>
+            <p class="chapeau">${escapeHtml(a.chapeau || '')}</p>
+            <div class="meta">
+              <span>Publié: ${created ? formatDate(created) : '—'}</span>
+              ${updated && updated !== created ? `<span>Mis à jour: ${formatDate(updated)}</span>` : ''}
+            </div>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
       document.getElementById('list').innerHTML = out;
     }
 

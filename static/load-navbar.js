@@ -40,6 +40,8 @@ function loadNavbar() {
         if (!sidebar || !overlay) return;
         sidebar.style.display = 'block';
         overlay.style.display = 'block';
+        sidebar.classList.add('open');
+        document.body.style.overflow = 'hidden';
         if (settingsBtn) {
           settingsBtn.classList.add('active');
           settingsBtn.setAttribute('aria-expanded', 'true');
@@ -48,8 +50,10 @@ function loadNavbar() {
 
       function closeSidebar() {
         if (!sidebar || !overlay) return;
+        sidebar.classList.remove('open');
         sidebar.style.display = 'none';
         overlay.style.display = 'none';
+        document.body.style.overflow = '';
         if (settingsBtn) {
           settingsBtn.classList.remove('active');
           settingsBtn.setAttribute('aria-expanded', 'false');
@@ -81,6 +85,20 @@ function loadNavbar() {
         .then(r => {
           if (r.ok && settingsBtn) {
             settingsBtn.style.display = 'inline-flex';
+          }
+          // show logout button only when admin is authenticated
+          const logoutBtn = document.getElementById('adminLogoutBtn');
+          if (logoutBtn) {
+            logoutBtn.style.display = r.ok ? '' : 'none';
+            if (r.ok) {
+              logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try { localStorage.removeItem('adminBasicAuth'); } catch (err) {}
+                try { await fetch('/api/admin/logout', { method: 'POST' }); } catch (_) {}
+                closeSidebar();
+                window.location.href = '/index.html';
+              });
+            }
           }
         })
         .catch(() => {});
